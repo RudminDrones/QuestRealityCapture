@@ -35,6 +35,7 @@ namespace RealityLog.OVR
         private long baseUnixTimeMs;
 
         private double latestTimestamp;
+        private float nextLogTime;
 
         public string DirectoryName
         {
@@ -82,12 +83,19 @@ namespace RealityLog.OVR
             {
                 StartLogging();
             }
+
+            nextLogTime = Time.realtimeSinceStartup;
         }
 
         private void FixedUpdate()
         {
             if (writer == null)
                 return;
+
+            if (Time.realtimeSinceStartup < nextLogTime)
+                return;
+
+            nextLogTime += 1.0f / AppSettings.Fps;
 
             EnqueueRowIfNeeded(writer);
         }

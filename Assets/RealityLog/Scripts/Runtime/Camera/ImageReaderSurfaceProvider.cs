@@ -20,6 +20,8 @@ namespace RealityLog.Camera
         [SerializeField] private int bufferPoolSize = 5;
 
         private AndroidJavaObject? currentInstance;
+        private float saveInterval;
+        private float nextSaveTime;
 
         public string DataDirectoryName
         {
@@ -57,9 +59,23 @@ namespace RealityLog.Camera
                 formatInfoFilePath,
                 bufferPoolSize
             );
-            currentInstance?.Call(SET_SHOULD_SAVE_FRAME_METHOD_NAME, true);
+            currentInstance?.Call(SET_SHOULD_SAVE_FRAME_METHOD_NAME, false);
+            saveInterval = 1.0f / AppSettings.Fps;
+            nextSaveTime = Time.realtimeSinceStartup;
 
             return currentInstance;
+        }
+
+        private void Update()
+        {
+            if (currentInstance == null)
+                return;
+
+            if (Time.realtimeSinceStartup < nextSaveTime)
+                return;
+
+            currentInstance.Call(SET_SHOULD_SAVE_FRAME_METHOD_NAME, true);
+            nextSaveTime += saveInterval;
         }
 
         private void OnDestroy()

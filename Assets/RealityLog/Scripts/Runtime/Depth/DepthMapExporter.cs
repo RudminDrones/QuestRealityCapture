@@ -38,6 +38,7 @@ namespace RealityLog.Depth
 
         private bool isExporting = false;
         private bool hasScenePermission = false;
+        private float nextExportTime;
 
         public string DirectoryName
         {
@@ -87,6 +88,7 @@ namespace RealityLog.Depth
             Permission.RequestUserPermission(OVRPermissionsRequester.ScenePermission);
 
             Application.onBeforeRender += OnBeforeRender;
+            nextExportTime = Time.realtimeSinceStartup;
         }
 
         private void OnDestroy()
@@ -105,6 +107,12 @@ namespace RealityLog.Depth
             {
                 return;
             }
+
+            if (Time.realtimeSinceStartup < nextExportTime)
+            {
+                return;
+            }
+            nextExportTime += 1.0f / AppSettings.Fps;
 
             if (!hasScenePermission)
             {
